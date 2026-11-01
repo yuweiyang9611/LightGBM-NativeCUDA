@@ -4,7 +4,7 @@
 wheelhouse，包含 LightGBM CUDA wheel 及其 Python 运行依赖。安装过程中不会访问
 PyPI 或其他网络索引。
 
-对应源码标签：[`v4.7.0.99-win-cuda132-sm89ptx-r1`](https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/tree/v4.7.0.99-win-cuda132-sm89ptx-r1)。
+对应源码标签：[`v4.7.0.99-win-cuda132-sm89ptx-r1`](https://github.com/yuweiyang9611/LightGBM-NativeCUDA/tree/v4.7.0.99-win-cuda132-sm89ptx-r1)。
 
 ## 兼容范围
 

@@ -1,16 +1,28 @@
-# Windows Native CUDA Single-GPU Fork
+# LightGBM Native CUDA Fork
 
 > [!IMPORTANT]
 > This is an **unofficial community fork**, not an official LightGBM release.
-> It adds a native Windows x64 CUDA backend for one selected NVIDIA GPU
-> (`USE_NCCL=OFF`), with an `sm_89` cubin and `compute_89` PTX fallback.
-> See the [Windows CUDA build and compatibility guide](docs/Windows原生单显卡LightGBM_CUDA版本构建.md)
-> and the [downloadable releases](https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases).
+> One source tree builds the CUDA backend on both supported systems; CMake
+> selects the platform-specific parts at configure time:
+> - **Windows x64 (MSVC)**: a native CUDA backend for one selected NVIDIA GPU
+>   (`USE_NCCL=OFF`), with an `sm_89` cubin and `compute_89` PTX fallback.
+>   See the [Windows CUDA build and compatibility guide](docs/Windows原生单显卡LightGBM_CUDA版本构建.md)
+>   and the [downloadable releases](https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases).
+> - **Linux x86_64 (GCC)**: the upstream CUDA build path (`USE_NCCL=ON`), built
+>   with a conda-forge toolchain through `build-python.sh bdist_wheel --cuda`.
+>
+> On top of upstream `main` the fork carries CUDA correctness fixes (missing-value
+> routing, histogram synchronization, `max_depth` enforcement, quantized and
+> categorical split search, bagging/GOSS state) with regression tests under
+> `tests/win_native_cuda_tests/` and `tests/python_package_test/`.
+> Formerly named `LightGBM-WinNativeCUDA-SingleGPU`; GitHub redirects the old URL.
 
-> 这是非官方社区 fork，面向 Windows x64 原生单 GPU CUDA。兼容范围、源码构建、
-> 离线 pip 安装和验证方法请阅读上面的构建文档；预编译包请从 Releases 下载。
-> 没有 Python 和 VC++ Runtime 的离线测试机可使用
-> [零安装便携测试包](packaging/windows_cuda_portable/README.md)，解压后双击运行。
+> 这是非官方社区 fork。同一份源码在 Windows x64（MSVC，原生单 GPU CUDA，`USE_NCCL=OFF`）
+> 和 Linux x86_64（GCC，上游 CUDA 构建路径，`USE_NCCL=ON`）上都能编译，由 CMake
+> 按平台选择专属部分。Windows 的兼容范围、源码构建、离线 pip 安装和验证方法请阅读
+> 上面的构建文档；预编译包请从 Releases 下载。没有 Python 和 VC++ Runtime 的离线
+> 测试机可使用 [零安装便携测试包](packaging/windows_cuda_portable/README.md)，解压后双击运行。
+> 仓库原名 `LightGBM-WinNativeCUDA-SingleGPU`，GitHub 会自动跳转旧地址。
 
 ---
 

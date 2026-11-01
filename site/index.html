@@ -18,11 +18,11 @@
     >
     <meta
       property="og:url"
-      content="https://yuweiyang9611.github.io/LightGBM-WinNativeCUDA-SingleGPU/"
+      content="https://yuweiyang9611.github.io/LightGBM-NativeCUDA/"
     >
     <meta
       property="og:image"
-      content="https://yuweiyang9611.github.io/LightGBM-WinNativeCUDA-SingleGPU/assets/og.png"
+      content="https://yuweiyang9611.github.io/LightGBM-NativeCUDA/assets/og.png"
     >
     <meta property="og:image:alt" content="LightGBM Windows 原生单 GPU CUDA 工程说明">
     <meta name="twitter:card" content="summary_large_image">
@@ -33,11 +33,11 @@
     >
     <meta
       name="twitter:image"
-      content="https://yuweiyang9611.github.io/LightGBM-WinNativeCUDA-SingleGPU/assets/og.png"
+      content="https://yuweiyang9611.github.io/LightGBM-NativeCUDA/assets/og.png"
     >
     <link
       rel="canonical"
-      href="https://yuweiyang9611.github.io/LightGBM-WinNativeCUDA-SingleGPU/"
+      href="https://yuweiyang9611.github.io/LightGBM-NativeCUDA/"
     >
     <link rel="stylesheet" href="./assets/site.css">
     <script src="./assets/site.js" defer></script>
@@ -74,7 +74,7 @@
           <a href="#pipeline">链路</a>
           <a href="#delivery">交付</a>
           <a href="#validation">验证</a>
-          <a class="nav-cta" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1">下载 Release</a>
+          <a class="nav-cta" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1">下载 Release</a>
         </nav>
       </div>
     </header>
@@ -96,7 +96,7 @@
             </p>
             <nav class="hero-actions" aria-label="项目入口">
               <a class="button button-primary" href="#changes">查看实现细节 <span aria-hidden="true">↘</span></a>
-              <a class="button button-quiet" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU">浏览源码 <span aria-hidden="true">↗</span></a>
+              <a class="button button-quiet" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA">浏览源码 <span aria-hidden="true">↗</span></a>
             </nav>
             <ul class="hero-facts" aria-label="核心信息">
               <li><span>构建基线</span><strong>CUDA Toolkit 13.2.51</strong></li>
@@ -197,7 +197,7 @@
                   <div><dt>边界</dt><dd><code>device_type="cuda"</code> 且 <code>num_gpu &gt; 1</code> 时主动报错，避免误入不可用路径。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/CMakeLists.txt">CMakeLists.txt <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/CMakeLists.txt">CMakeLists.txt <span aria-hidden="true">↗</span></a>
             </article>
 
             <article class="change-card">
@@ -211,7 +211,7 @@
                   <div><dt>fmt 修复</dt><dd>在构建目录复制头文件并应用 UTF-32 workaround；不直接修改第三方源码，且在输入版本不匹配时立即停止配置。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/cmake/WindowsCudaFmtPatch.cmake">兼容补丁 <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/cmake/WindowsCudaFmtPatch.cmake">兼容补丁 <span aria-hidden="true">↗</span></a>
             </article>
 
             <article class="change-card">
@@ -225,7 +225,7 @@
                   <div><dt>运行库</dt><dd>选择 Shared CUDA Runtime，与 MSVC <code>/MD</code> 对齐，避免静态 cudart 引入的 CRT 冲突。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/src/cuda/cuda_link.cu">设备链接锚点 <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/src/cuda/cuda_link.cu">设备链接锚点 <span aria-hidden="true">↗</span></a>
             </article>
 
             <article class="change-card">
@@ -239,7 +239,7 @@
                   <div><dt>宏隔离</dt><dd>将 kernel 模板参数重命名为 <code>USE_NCCL_REDUCTION</code>，避免与构建宏发生预处理替换。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/tree/main/tests/win_native_cuda_tests">源码契约测试 <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/tree/main/tests/win_native_cuda_tests">源码契约测试 <span aria-hidden="true">↗</span></a>
             </article>
 
             <article class="change-card">
@@ -253,7 +253,7 @@
                   <div><dt>可识别性</dt><dd>支持 PEP 427 build tag，例如 <code>1cuda132sm89ptx</code>，在不改 Python 包版本的前提下标识 CUDA 变体。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/build-python.sh">build-python.sh <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/build-python.sh">build-python.sh <span aria-hidden="true">↗</span></a>
             </article>
 
             <article class="change-card">
@@ -267,7 +267,7 @@
                   <div><dt>便携包</dt><dd>组合 CPython embeddable、MSVC/OpenMP app-local DLL、隔离启动器和冒烟测试；不修改系统 PATH、注册表或用户 Python。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/tree/main/packaging/windows_cuda_portable">便携包源码 <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/tree/main/packaging/windows_cuda_portable">便携包源码 <span aria-hidden="true">↗</span></a>
             </article>
 
             <article class="change-card">
@@ -281,7 +281,7 @@
                   <div><dt>双路径</dt><dd>分别跑原生 cubin 和 <code>CUDA_FORCE_PTX_JIT=1</code>，并确认无 NCCL 构建拒绝 <code>num_gpu=2</code>。</dd></div>
                 </dl>
               </div>
-              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/tests/win_native_cuda_tests/run_windows_cuda_tests.ps1">端到端 Runner <span aria-hidden="true">↗</span></a>
+              <a class="source-link" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/tests/win_native_cuda_tests/run_windows_cuda_tests.ps1">端到端 Runner <span aria-hidden="true">↗</span></a>
             </article>
           </div>
         </div>
@@ -366,7 +366,7 @@
                 <li>兼容 NVIDIA 驱动</li>
                 <li>Microsoft VC++ Runtime</li>
               </ul>
-              <a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl">下载 wheel <span aria-hidden="true">↓</span></a>
+              <a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl">下载 wheel <span aria-hidden="true">↓</span></a>
             </article>
 
             <article class="delivery-card featured">
@@ -379,7 +379,7 @@
                 <li>安装前校验 SHA-256</li>
                 <li>无需 Toolkit / CMake / VS</li>
               </ul>
-              <a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-offline.zip">下载离线包 <span aria-hidden="true">↓</span></a>
+              <a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-offline.zip">下载离线包 <span aria-hidden="true">↓</span></a>
             </article>
 
             <article class="delivery-card">
@@ -391,7 +391,7 @@
                 <li>不修改系统 PATH / 注册表</li>
                 <li>输出 JSON 与完整日志</li>
               </ul>
-              <a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip">下载便携包 <span aria-hidden="true">↓</span></a>
+              <a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip">下载便携包 <span aria-hidden="true">↓</span></a>
             </article>
           </div>
 
@@ -400,7 +400,7 @@
               <p class="card-kicker">已验证的构建入口</p>
               <h3>明确生成 8.9 原生代码与 PTX fallback。</h3>
               <p><code>89-real</code> 生成 <code>sm_89</code> cubin；<code>89-virtual</code> 保留 <code>compute_89</code> PTX。分发构建不使用只覆盖本机 GPU 的 <code>native</code>。</p>
-              <a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">阅读完整构建文档 <span aria-hidden="true">↗</span></a>
+              <a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">阅读完整构建文档 <span aria-hidden="true">↗</span></a>
             </div>
             <div class="code-card build-code">
               <div class="code-card-bar">
@@ -517,8 +517,8 @@ cmake --build build `
             <p>查看完整源码、获取已发布包，或继续阅读逐步构建与兼容性说明。</p>
           </div>
           <div class="final-actions">
-            <a class="button button-primary" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1">获取 Release <span aria-hidden="true">↗</span></a>
-            <a class="button button-quiet" href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">构建文档</a>
+            <a class="button button-primary" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1">获取 Release <span aria-hidden="true">↗</span></a>
+            <a class="button button-quiet" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">构建文档</a>
           </div>
         </div>
       </section>
@@ -534,8 +534,8 @@ cmake --build build `
           <p>Windows 原生单 GPU CUDA 的构建、打包与验证工程。</p>
         </div>
         <div class="footer-links">
-          <div><strong>项目</strong><a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU">源码仓库</a><a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/releases">Releases</a></div>
-          <div><strong>文档</strong><a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">构建与兼容</a><a href="https://github.com/yuweiyang9611/LightGBM-WinNativeCUDA-SingleGPU/tree/main/tests/win_native_cuda_tests">测试说明</a></div>
+          <div><strong>项目</strong><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA">源码仓库</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases">Releases</a></div>
+          <div><strong>文档</strong><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">构建与兼容</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/tree/main/tests/win_native_cuda_tests">测试说明</a></div>
         </div>
       </div>
       <div class="container footer-bottom"><span>MIT License</span><span>页面内容基于仓库当前实现与测试记录整理</span></div>
