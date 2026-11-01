@@ -2002,6 +2002,33 @@ def test_reference_chain(rng):
     assert len(evals_result["valid_1"]["rmse"]) == 20
 
 
+@pytest.mark.parametrize("max_depth", [1, 2, 3, 6])
+def test_max_depth_limits_tree_depth(max_depth):
+    def depth(node):
+        if "split_feature" not in node:
+            return 0
+        return 1 + max(depth(node["left_child"]), depth(node["right_child"]))
+
+    # num_leaves is deliberately far larger than 2**max_depth so that only max_depth
+    # can stop the trees from growing deeper. The labels contain nested interactions
+    # that an unconstrained tree would keep splitting on.
+    rng = np.random.default_rng(42)
+    X = rng.normal(size=(5_000, 8))
+    y = np.sin(3 * X[:, 0]) * X[:, 1] + (X[:, 2] > 0) * X[:, 3] * X[:, 4] + np.abs(X[:, 5]) * X[:, 6]
+    params = {
+        "objective": "regression",
+        "max_depth": max_depth,
+        "num_leaves": 255,
+        "min_data_in_leaf": 5,
+        "learning_rate": 0.1,
+        "verbose": -1,
+    }
+    gbm = lgb.train(params, lgb.Dataset(X, y), num_boost_round=5)
+    depths = [depth(tree["tree_structure"]) for tree in gbm.dump_model()["tree_info"]]
+    assert max(depths) == max_depth
+    assert all(d <= max_depth for d in depths)
+
+
 def test_contribs():
     X, y = load_breast_cancer(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
