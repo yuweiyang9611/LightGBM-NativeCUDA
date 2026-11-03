@@ -36,7 +36,12 @@ python-build>=0.10
 scikit-build-core>=0.11.0
 
 # starting some time around 2026, 'pip' is no longer guaranteed to be installed
-pip>=24
+#
+# '<26.2.2': conda-forge's rebuild of pip 26.2.2 (conda-forge/pip-feedstock#151) looks for its
+# CA bundle under sys.prefix. 'python -m build' runs pip inside an isolated venv, where sys.prefix
+# has no CA bundle, so every build fails with FileNotFoundError. Remove the ceiling once
+# conda-forge publishes a fixed build.
+pip>=24,<26.2.2
 
 # testing-only dependencies
 cloudpickle>=3.0.0
