@@ -93,29 +93,26 @@ try {
     }
     $Invocation | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $RunRoot "invocation.json") -Encoding UTF8
 
-    Write-Host "LightGBM Windows native CUDA portable test"
-    Write-Host "Result directory: $RunRoot"
-    Write-Host "GPU device ID:   $GpuDeviceId"
-    Write-Host "Force PTX JIT:   $([bool]$ForcePtxJit)"
+    Write-Output "LightGBM Windows native CUDA portable test"
+    Write-Output "Result directory: $RunRoot"
+    Write-Output "GPU device ID:   $GpuDeviceId"
+    Write-Output "Force PTX JIT:   $([bool]$ForcePtxJit)"
 
     & $PythonExecutable -I -s -E -B $SmokeTest 2>&1 |
         Tee-Object -FilePath (Join-Path $RunRoot "console.log")
     $ExitCode = $LASTEXITCODE
     if ($ExitCode -eq 0) {
-        Write-Host "PASS - CUDA training completed."
+        Write-Output "PASS - CUDA training completed."
+    } else {
+        Write-Output "FAIL - test process returned exit code $ExitCode."
     }
-    else {
-        Write-Host "FAIL - test process returned exit code $ExitCode."
-    }
-}
-catch {
-    Write-Host "FAIL - $($_.Exception.Message)"
+} catch {
+    Write-Output "FAIL - $($_.Exception.Message)"
     if ($RunRoot -and (Test-Path -LiteralPath $RunRoot -PathType Container)) {
         $_ | Out-String | Set-Content -LiteralPath (Join-Path $RunRoot "launcher-error.txt") -Encoding UTF8
     }
     $ExitCode = 1
-}
-finally {
+} finally {
     if (-not $KeepScratch -and $ScratchRoot -and (Test-Path -LiteralPath $ScratchRoot -PathType Container)) {
         $RunPrefix = [System.IO.Path]::GetFullPath($RunRoot).TrimEnd("\") + "\"
         $ScratchFullPath = [System.IO.Path]::GetFullPath($ScratchRoot)
@@ -125,7 +122,7 @@ finally {
         }
     }
     if ($Pause) {
-        Write-Host ""
+        Write-Output ""
         [void](Read-Host "Press Enter to close")
     }
 }

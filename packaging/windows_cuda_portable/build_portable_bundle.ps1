@@ -85,7 +85,8 @@ if ((Test-Path -LiteralPath $BundleRoot) -or (Test-Path -LiteralPath $BundleZip)
     throw "Output already exists. Choose a new -BundleName or remove it explicitly: $BundleRoot"
 }
 
-$BuildScratch = Join-Path ([System.IO.Path]::GetTempPath()) ("lightgbm-portable-build-" + [Guid]::NewGuid().ToString("N"))
+$BuildScratchName = "lightgbm-portable-build-" + [Guid]::NewGuid().ToString("N")
+$BuildScratch = Join-Path ([System.IO.Path]::GetTempPath()) $BuildScratchName
 New-Item -ItemType Directory -Path $BuildScratch | Out-Null
 
 try {
@@ -116,8 +117,7 @@ try {
     foreach ($Line in Get-Content -LiteralPath $EmbeddedPth[0].FullName) {
         if ($Line.Trim() -eq "import site") {
             $PthLines.Add("#import site")
-        }
-        else {
+        } else {
             $PthLines.Add($Line)
         }
     }
@@ -127,7 +127,7 @@ try {
     Set-Content -LiteralPath $EmbeddedPth[0].FullName -Value $PthLines -Encoding ASCII
 
     $LightGbmWheel = @(Get-ChildItem -LiteralPath $WheelhouseDirectory -Filter "lightgbm-*-win_amd64.whl" -File |
-        Sort-Object Name)
+            Sort-Object Name)
     if ($LightGbmWheel.Count -ne 1) {
         throw "Expected exactly one LightGBM win_amd64 wheel in the wheelhouse."
     }
@@ -176,11 +176,12 @@ try {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "template\tests") -Destination $BundleRoot -Recurse
     New-Item -ItemType Directory -Path (Join-Path $BundleRoot "results") | Out-Null
 
+    $LightGbmWheelHash = (Get-FileHash -LiteralPath $LightGbmWheel[0].FullName -Algorithm SHA256).Hash
     $BundleInfo = [ordered]@{
         format_version = 1
         created_utc = [DateTime]::UtcNow.ToString("o")
         lightgbm_wheel = $LightGbmWheel[0].Name
-        lightgbm_wheel_sha256 = (Get-FileHash -LiteralPath $LightGbmWheel[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        lightgbm_wheel_sha256 = $LightGbmWheelHash.ToLowerInvariant()
         wheelhouse_zip = [System.IO.Path]::GetFileName($WheelhouseZip)
         wheelhouse_zip_sha256 = (Get-FileHash -LiteralPath $WheelhouseZip -Algorithm SHA256).Hash.ToLowerInvariant()
         python_embed_zip = [System.IO.Path]::GetFileName($PythonEmbedZip)
@@ -190,34 +191,37 @@ try {
     Write-Utf8NoBom -Path (Join-Path $BundleRoot "bundle_info.json") -Content ($BundleInfo | ConvertTo-Json -Depth 4)
 
     $ManifestLines = New-Object System.Collections.Generic.List[string]
-    Get-ChildItem -LiteralPath $BundleRoot -File -Recurse |
-        Where-Object { $_.Name -ne "SHA256SUMS.txt" -and $_.FullName -notlike (Join-Path $BundleRoot "results\*") } |
-        Sort-Object FullName |
-        ForEach-Object {
-            $RelativePath = $_.FullName.Substring($BundleRoot.Length + 1).Replace("\", "/")
-            $Hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-            $ManifestLines.Add("$Hash  $RelativePath")
+    $ResultsPattern = Join-Path $BundleRoot "results\*"
+    foreach ($BundleFile in (Get-ChildItem -LiteralPath $BundleRoot -File -Recurse | Sort-Object FullName)) {
+        if ($BundleFile.Name -eq "SHA256SUMS.txt" -or $BundleFile.FullName -like $ResultsPattern) {
+            continue
         }
+        $RelativePath = $BundleFile.FullName.Substring($BundleRoot.Length + 1).Replace("\", "/")
+        $Hash = (Get-FileHash -LiteralPath $BundleFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        $ManifestLines.Add("$Hash  $RelativePath")
+    }
     Write-Utf8NoBom -Path (Join-Path $BundleRoot "SHA256SUMS.txt") -Content (($ManifestLines -join "`n") + "`n")
 
     $OriginalPath = $env:PATH
     try {
         $env:PATH = $PythonDirectory + ";" + $OriginalPath
-        & $EmbeddedPython -I -s -E -B -c "import lightgbm, numpy, scipy, narwhals; print(lightgbm.__version__, numpy.__version__, scipy.__version__, narwhals.__version__)"
+        $ImportCheck = @(
+            "import lightgbm, numpy, scipy, narwhals"
+            "print(lightgbm.__version__, numpy.__version__, scipy.__version__, narwhals.__version__)"
+        ) -join "; "
+        & $EmbeddedPython -I -s -E -B -c $ImportCheck
         if ($LASTEXITCODE -ne 0) {
             throw "The assembled embedded Python runtime could not import all required packages."
         }
-    }
-    finally {
+    } finally {
         $env:PATH = $OriginalPath
     }
 
     Compress-Archive -Path (Join-Path $BundleRoot "*") -DestinationPath $BundleZip -CompressionLevel Optimal
     $BundleZipHash = (Get-FileHash -LiteralPath $BundleZip -Algorithm SHA256).Hash.ToLowerInvariant()
-    Write-Host "Portable bundle: $BundleZip"
-    Write-Host "SHA-256:        $BundleZipHash"
-}
-finally {
+    Write-Output "Portable bundle: $BundleZip"
+    Write-Output "SHA-256:        $BundleZipHash"
+} finally {
     $ScratchFullPath = Get-FullPath $BuildScratch
     $TempRoot = (Get-FullPath ([System.IO.Path]::GetTempPath())).TrimEnd("\") + "\"
     if ($ScratchFullPath.StartsWith($TempRoot, [System.StringComparison]::OrdinalIgnoreCase) -and
