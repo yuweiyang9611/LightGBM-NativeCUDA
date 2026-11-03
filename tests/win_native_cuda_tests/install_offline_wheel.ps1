@@ -26,9 +26,8 @@ foreach ($Line in Get-Content -LiteralPath $ChecksumManifest) {
     }
 }
 
-$Wheel = Get-ChildItem -LiteralPath $PSScriptRoot -Filter "lightgbm-*-win_amd64.whl" |
-    Sort-Object Name |
-    Select-Object -Last 1
+$WheelFilter = "lightgbm-*-win_amd64.whl"
+$Wheel = Get-ChildItem -LiteralPath $PSScriptRoot -Filter $WheelFilter | Sort-Object Name | Select-Object -Last 1
 if (-not $Wheel) {
     throw "No Windows x64 LightGBM wheel was found in $PSScriptRoot."
 }

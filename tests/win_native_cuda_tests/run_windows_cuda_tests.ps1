@@ -27,7 +27,7 @@ if (-not (Get-Command $PythonExecutable -ErrorAction SilentlyContinue)) {
 }
 & $PythonExecutable -c "import narwhals, numpy, pytest, scipy"
 if ($LASTEXITCODE -ne 0) {
-    throw "The test Python environment needs narwhals, numpy, scipy, and pytest. Install them before running this script."
+    throw "The test Python environment needs narwhals, numpy, scipy, and pytest. Install them first."
 }
 
 $Nvcc = Get-Command "nvcc.exe" -ErrorAction SilentlyContinue
@@ -86,8 +86,8 @@ $PtxListing = (& $Cuobjdump --all-fatbin --list-ptx $BuiltDll.FullName 2>&1 | Ou
 if ($PtxListing -notmatch "PTX file\s+\d+:") {
     throw "The built DLL does not contain PTX for forward-compatible JIT.`n$PtxListing"
 }
-Write-Host $CubinListing.Trim()
-Write-Host "Relocatable PTX fallback found in the built DLL."
+Write-Output $CubinListing.Trim()
+Write-Output "Relocatable PTX fallback found in the built DLL."
 
 $env:LIGHTGBM_CUDA_DLL = $BuiltDll.FullName
 $env:LIGHTGBM_TEST_CMAKE = (Get-Command $CMakeExecutable).Source
