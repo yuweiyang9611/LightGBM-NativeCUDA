@@ -41,18 +41,93 @@
     </header>
 
     <main class="page" id="main">
+      <!-- The opening screen: the summary, the first thing to run, then the register of build targets as cards. -->
       <header class="intro" id="top">
-        <h1 id="hero-title">LightGBM 原生 CUDA：构建、验证与下载</h1>
-        <p class="lede" id="overview">LightGBM 4.7.0.99 的非官方构建。Windows x64 用 MSVC 和 NVCC 编译单 GPU CUDA，Linux x86_64 走上游的 CUDA 路径，两边是同一份源码。</p>
-        <p class="facts">当前 Windows 产物：CUDA Toolkit 13.2.51 · sm_89 cubin 加 compute_89 PTX · USE_NCCL=OFF · 在 RTX 4060 Laptop GPU、驱动 610.88 上实测</p>
-        <div class="cmds">
-          <p class="cmd-label">先取源码，子模块要一起拉下来</p>
+        <div class="masthead">
+          <div>
+            <h1 id="hero-title">LightGBM 原生 CUDA：构建、验证与下载</h1>
+            <p class="masthead-note" id="overview">LightGBM 4.7.0.99 的非官方构建。Windows x64 用 MSVC 和 NVCC 编译单 GPU CUDA，Linux x86_64 走上游的 CUDA 路径，两边是同一份源码。</p>
+          </div>
+          <ul class="stats" aria-label="版本概况">
+            <li class="nb-stat" data-hue="purple"><b>4.7.0.99</b><span>LightGBM 版本</span></li>
+            <li class="nb-stat" data-hue="blue"><b>13.2.51</b><span>CUDA Toolkit</span></li>
+            <li class="nb-stat" data-hue="green"><b>4</b><span>个构建目标</span></li>
+          </ul>
+        </div>
+
+        <section class="clone nb-banner" aria-labelledby="clone-label">
+          <div class="clone-copy">
+            <p class="nb-banner-eyebrow" id="clone-label">先克隆</p>
+            <p class="nb-banner-title">把源码连同子模块一起取下来</p>
+            <p class="nb-banner-note">GitHub 自动生成的 Source code 压缩包不含完整的子模块，不能用来构建；只想用现成的 DLL 就直接去下载。</p>
+          </div>
+          <a class="nb-button nb-button--solid clone-go" href="#delivery">去下载</a>
+        </section>
+        <div class="cmds clone-cmd">
+          <p class="cmd-label">PowerShell 或 Bash，在放源码的目录</p>
           <div class="cmd"><code>git clone --recurse-submodules https://github.com/yuweiyang9611/LightGBM-NativeCUDA.git
 cd LightGBM-NativeCUDA</code><button class="copy" type="button">复制</button></div>
         </div>
-        <p class="note">GitHub 自动生成的 Source code 压缩包不含完整的子模块，不能用来构建。</p>
+
+        <section class="targets" id="targets" aria-labelledby="targets-title">
+          <div class="section-head">
+            <h2 id="targets-title">构建目标</h2>
+            <p>同一份源码，四个目标。选一个进入对应的步骤，每条命令都能直接复制。</p>
+          </div>
+          <ul class="nb-grid targets-grid">
+            <li class="nb-card" data-hue="blue">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">Windows · MSVC 加 NVCC</p>
+                  <h3><a href="#build-windows-cuda">CUDA 单 GPU</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>需要 Visual Studio 的 MSVC、CUDA Toolkit 13.2.51 和 CMake，产物带 sm_89 cubin 和 compute_89 PTX。</p>
+                <div class="nb-card-meta"><span>产物</span><b><code>Release\lib_lightgbm.dll</code></b></div>
+              </div>
+            </li>
+            <li class="nb-card" data-hue="purple">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">Windows · Git Bash 加 Python</p>
+                  <h3><a href="#build-wheel">打包成 wheel</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>把上一步的 DLL 装进 Python 包，需要 Git Bash 和 Python 3.10 或更新版本。</p>
+                <div class="nb-card-meta"><span>产物</span><b><code>dist\*-win_amd64.whl</code></b></div>
+              </div>
+            </li>
+            <li class="nb-card" data-hue="cyan">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">Windows · MSVC</p>
+                  <h3><a href="#build-windows-cpu">仅 CPU</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>只要 Visual Studio 或 VS Build Tools 和 CMake，不需要 GPU 和 CUDA Toolkit。</p>
+                <div class="nb-card-meta"><span>产物</span><b><code>Release\*.exe、*.dll</code></b></div>
+              </div>
+            </li>
+            <li class="nb-card" data-hue="green">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">Linux · GCC 加 NVCC</p>
+                  <h3><a href="#build-linux">CUDA</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>需要 GCC、CMake、CUDA Toolkit 和 NCCL，沿用上游路径，USE_NCCL 默认打开。</p>
+                <div class="nb-card-meta"><span>产物</span><b><code>dist/*.whl</code> 或 <code>lib_lightgbm.so</code></b></div>
+              </div>
+            </li>
+          </ul>
+        </section>
       </header>
 
+      <div class="reading">
       <nav class="toc" aria-labelledby="toc-title">
         <h2 class="toc-title" id="toc-title">本页目录</h2>
         <ol class="toc-list">
@@ -74,6 +149,7 @@ cd LightGBM-NativeCUDA</code><button class="copy" type="button">复制</button><
           <h2 id="build-title">构建</h2>
 
           <article class="recipe" id="build-windows-cuda" aria-labelledby="build-windows-cuda-title">
+            <p class="band" data-hue="blue">Windows · MSVC 加 NVCC</p>
             <h3 id="build-windows-cuda-title">Windows · CUDA 单 GPU</h3>
             <dl class="fields">
               <dt>需要</dt>
@@ -95,6 +171,7 @@ cmake --build build --config Release --target _lightgbm --parallel</code><button
           </article>
 
           <article class="recipe" id="build-wheel" aria-labelledby="build-wheel-title">
+            <p class="band" data-hue="purple">Windows · Git Bash 加 Python</p>
             <h3 id="build-wheel-title">打包成 wheel</h3>
             <p>把上一步的 DLL 装进 Python 包。<code>build-python.sh</code> 会在仓库根目录和 <code>Release\</code> 下找 <code>lib_lightgbm.dll</code>，在 <code>dist\</code> 生成带 <code>win_amd64</code> 平台标签的 wheel，再安装它。</p>
             <dl class="fields">
@@ -113,6 +190,7 @@ sh ./build-python.sh install --precompile</code><button class="copy" type="butto
           </article>
 
           <article class="recipe" id="build-windows-cpu" aria-labelledby="build-windows-cpu-title">
+            <p class="band" data-hue="cyan">Windows · MSVC</p>
             <h3 id="build-windows-cpu-title">Windows · 仅 CPU</h3>
             <dl class="fields">
               <dt>需要</dt>
@@ -131,6 +209,7 @@ cmake --build build --target ALL_BUILD --config Release</code><button class="cop
           </article>
 
           <article class="recipe" id="build-linux" aria-labelledby="build-linux-title">
+            <p class="band" data-hue="green">Linux · GCC 加 NVCC</p>
             <h3 id="build-linux-title">Linux · CUDA</h3>
             <dl class="fields">
               <dt>需要</dt>
@@ -156,7 +235,8 @@ cmake --build build -j4</code><button class="copy" type="button">复制</button>
         <section id="validation" aria-labelledby="validation-title">
           <h2 id="validation-title">验证</h2>
 
-          <article class="recipe" aria-labelledby="verify-full-title">
+          <article class="recipe" id="verify-full" aria-labelledby="verify-full-title">
+            <p class="band" data-hue="blue">Windows · 需要一张 NVIDIA GPU</p>
             <h3 id="verify-full-title">构建并跑完整测试</h3>
             <dl class="fields">
               <dt>需要</dt>
@@ -181,7 +261,8 @@ tests/win_native_cuda_tests/run_windows_cuda_tests.ps1</code><button class="copy
             </ul>
           </article>
 
-          <article class="recipe" aria-labelledby="verify-contract-title">
+          <article class="recipe" id="verify-contract" aria-labelledby="verify-contract-title">
+            <p class="band" data-hue="cyan">任何机器 · 不需要 GPU</p>
             <h3 id="verify-contract-title">只查源码契约，不需要 GPU</h3>
             <p>检查 NCCL 是否完整条件化、MSVC 参数、fmt 补丁、Windows 类型修复、device-link 配置和 wheel 元数据。</p>
             <div class="cmds">
@@ -190,7 +271,8 @@ tests/win_native_cuda_tests/run_windows_cuda_tests.ps1</code><button class="copy
             </div>
           </article>
 
-          <article class="recipe" aria-labelledby="verify-dll-title">
+          <article class="recipe" id="verify-dll" aria-labelledby="verify-dll-title">
+            <p class="band" data-hue="blue">Windows · 已有 DLL</p>
             <h3 id="verify-dll-title">只测已经构建好的 DLL</h3>
             <div class="cmds">
               <p class="cmd-label">PowerShell，在仓库根目录，换成 DLL 的实际路径</p>
@@ -207,7 +289,8 @@ tests/win_native_cuda_tests/run_windows_cuda_tests.ps1</code><button class="copy
             </ul>
           </article>
 
-          <article class="recipe" aria-labelledby="verify-target-title">
+          <article class="recipe" id="verify-target" aria-labelledby="verify-target-title">
+            <p class="band" data-hue="blue">Windows · 目标机</p>
             <h3 id="verify-target-title">在目标机上</h3>
             <figure class="paste">
               <figcaption class="paste-label"><span>查 GPU、Compute Capability 和驱动</span><button class="copy" type="button">复制命令</button></figcaption>
@@ -225,7 +308,8 @@ NVIDIA GeForce RTX 4060 Laptop GPU, 8.9, 610.88</pre>
             </ul>
           </article>
 
-          <article class="recipe" aria-labelledby="verify-linux-title">
+          <article class="recipe" id="verify-linux" aria-labelledby="verify-linux-title">
+            <p class="band" data-hue="green">Linux · 装好 wheel 之后</p>
             <h3 id="verify-linux-title">Linux</h3>
             <div class="cmds">
               <p class="cmd-label">Bash，装好 wheel 后在仓库根目录</p>
@@ -241,8 +325,48 @@ NVIDIA GeForce RTX 4060 Laptop GPU, 8.9, 610.88</pre>
           <h2 id="delivery-title">下载</h2>
           <p>来自 Release <a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1"><code>v4.7.0.99-win-cuda132-sm89ptx-r1</code></a>。三个包里是同一个 <code>lib_lightgbm.dll</code>，区别在目标机要准备什么。目标机都不需要 CUDA Toolkit、CMake 或 Visual Studio。</p>
 
-          <article class="recipe" aria-labelledby="download-wheel-title">
-            <h3 id="download-wheel-title">Windows wheel：已经有 Python 环境</h3>
+          <ul class="nb-grid downloads-grid" aria-label="三个下载包">
+            <li class="nb-card" data-hue="purple">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">wheel · Python 3.10 或更新</p>
+                  <h3><a href="#download-wheel">Windows wheel</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>已经有 Python 环境时装这个，NumPy、SciPy、Narwhals 由 pip 另外获取。</p>
+                <div class="nb-card-meta"><a class="file" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl"><code>lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl</code></a></div>
+              </div>
+            </li>
+            <li class="nb-card" data-hue="purple">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">wheelhouse · CPython 3.11</p>
+                  <h3><a href="#download-offline">离线 wheelhouse</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>目标机不能联网时用，包内带全部依赖、安装脚本和 SHA-256 清单。</p>
+                <div class="nb-card-meta"><a class="file" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-offline.zip"><code>lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-offline.zip</code></a></div>
+              </div>
+            </li>
+            <li class="nb-card" data-hue="blue">
+              <div class="nb-card-head">
+                <div>
+                  <p class="nb-card-eyebrow">便携包 · 不需要 Python</p>
+                  <h3><a href="#download-portable">零安装便携包</a></h3>
+                </div>
+              </div>
+              <div class="nb-card-body">
+                <p>不改动目标机：只要兼容的 NVIDIA GPU 和驱动，解压就能跑冒烟测试。</p>
+                <div class="nb-card-meta"><a class="file" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip"><code>lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip</code></a></div>
+              </div>
+            </li>
+          </ul>
+
+          <article class="recipe" id="download-wheel" aria-labelledby="download-wheel-title">
+            <p class="band" data-hue="purple">wheel · 已经有 Python 环境</p>
+            <h3 id="download-wheel-title">Windows wheel</h3>
             <p class="file"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl"><code>lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl</code></a></p>
             <dl class="fields">
               <dt>目标机</dt>
@@ -257,8 +381,9 @@ pip install lightgbm-4.7.0.99-1cuda132sm89ptx-py3-none-win_amd64.whl</code><butt
             </div>
           </article>
 
-          <article class="recipe" aria-labelledby="download-offline-title">
-            <h3 id="download-offline-title">离线 wheelhouse：目标机不能联网</h3>
+          <article class="recipe" id="download-offline" aria-labelledby="download-offline-title">
+            <p class="band" data-hue="purple">wheelhouse · 目标机不能联网</p>
+            <h3 id="download-offline-title">离线 wheelhouse</h3>
             <p class="file"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-offline.zip"><code>lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-offline.zip</code></a></p>
             <dl class="fields">
               <dt>目标机</dt>
@@ -284,8 +409,9 @@ Windows native CUDA LightGBM verification passed</pre>
             </ul>
           </article>
 
-          <article class="recipe" aria-labelledby="download-portable-title">
-            <h3 id="download-portable-title">零安装便携包：不改动目标机</h3>
+          <article class="recipe" id="download-portable" aria-labelledby="download-portable-title">
+            <p class="band" data-hue="blue">便携包 · 不改动目标机</p>
+            <h3 id="download-portable-title">零安装便携包</h3>
             <p class="file"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip"><code>lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip</code></a></p>
             <dl class="fields">
               <dt>目标机</dt>
@@ -312,7 +438,8 @@ Set-Location .\lightgbm-cuda-portable
             </ul>
           </article>
 
-          <article class="recipe" aria-labelledby="download-checksum-title">
+          <article class="recipe" id="download-checksum" aria-labelledby="download-checksum-title">
+            <p class="band" data-hue="blue">三个包 · SHA-256</p>
             <h3 id="download-checksum-title">校验</h3>
             <p><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/SHA256SUMS-release.txt"><code>SHA256SUMS-release.txt</code></a> 覆盖 wheel 和离线包，<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/download/v4.7.0.99-win-cuda132-sm89ptx-r1/lightgbm-4.7.0.99-1cuda132sm89ptx-win_amd64-cp311-portable.zip.sha256"><code>portable.zip.sha256</code></a> 对应便携包。Release 记录的值：</p>
             <dl class="fields hashes">
@@ -332,6 +459,7 @@ Set-Location .\lightgbm-cuda-portable
 
         <section id="compatibility" aria-labelledby="compatibility-title">
           <h2 id="compatibility-title">兼容范围</h2>
+          <p class="band" data-hue="blue">Windows 产物 · sm_89 cubin 加 compute_89 PTX</p>
           <p>决定能不能跑的是 GPU 的 Compute Capability 和驱动，不是目标机装了哪个 CUDA Toolkit。<code>nvidia-smi</code> 顶部的 CUDA Version 只表示驱动最高能支持到哪个版本。</p>
           <ul class="rows compat">
             <li>
@@ -359,6 +487,7 @@ Set-Location .\lightgbm-cuda-portable
 
         <section id="pipeline" aria-labelledby="pipeline-title">
           <h2 id="pipeline-title">在 Python 里用</h2>
+          <p class="band" data-hue="purple">Python · Windows 和 Linux 相同</p>
           <p>调用方式不变：Python 包装层经 <code>ctypes</code> 调用 C API，再进入 C++ GBDT 和 CUDA Tree Learner。只需要把设备设成 <code>cuda</code>。</p>
           <figure class="paste">
             <figcaption class="paste-label"><span>train_cuda.py</span><button class="copy" type="button">复制代码</button></figcaption>
@@ -380,6 +509,7 @@ model = lgb.<span class="tok-call">train</span>(
 
         <section id="changes" aria-labelledby="changes-title">
           <h2 id="changes-title">改了什么</h2>
+          <p class="band" data-hue="purple">源码 · 6 项改动</p>
           <p>每一项都对应一个构建、运行或交付问题，并由源码或测试固定下来。测试命令见<a href="#validation">验证</a>。</p>
           <ul class="rows changes">
             <li>
@@ -420,6 +550,7 @@ model = lgb.<span class="tok-call">train</span>(
             </li>
           </ul>
         </section>
+      </div>
       </div>
     </main>
 
