@@ -35,7 +35,7 @@ const types = {
 // The kit is copied from yuweiyang9611.github.io/kit/v1 unedited, and a published kit version never changes.
 const kit = {
   "assets/lib/favicon.svg": "3ea07acd66b71bcef6462252c4e437ee6622f57898089bbb891410e57b20dc0e",
-  "assets/lib/notebook.css": "e5aea068eca83d10ad83a0fbbda3165fbbf0ecf575482066a8d8aba2d137635b",
+  "assets/lib/notebook.css": "77b6f7006dedd30fac7baa290419b4784d11a349bb0be92605311eb3a42c4857",
   "assets/lib/theme.js": "2f26afc56d0152d02f363af644ac51b552a890e02d3e81542795aba6b8d5d5e0",
 };
 
