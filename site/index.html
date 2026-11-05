@@ -28,6 +28,8 @@
     <script src="./assets/lib/theme.js"></script>
     <link rel="stylesheet" href="./assets/lib/notebook.css">
     <link rel="stylesheet" href="./assets/site.css">
+    <script src="./assets/lib/code-colors.js" defer></script>
+    <script src="./assets/lib/source-panel.js" defer></script>
     <script src="./assets/site.js" defer></script>
     <title>LightGBM 原生 CUDA：构建、验证与下载</title>
   </head>
@@ -37,7 +39,7 @@
     <header class="nb-head">
       <a class="nb-brand" href="./">LightGBM NativeCUDA</a>
       <button class="nb-nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">菜单</button>
-      <nav class="nb-nav nb-nav--collapsible" id="site-nav" aria-label="相关链接"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1">Release</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/docs/Windows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">构建文档</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA">GitHub</a><a href="https://yuweiyang9611.github.io/">全部项目</a></nav>
+      <nav class="nb-nav nb-nav--collapsible" id="site-nav" aria-label="相关链接"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases/tag/v4.7.0.99-win-cuda132-sm89ptx-r1">Release</a><a href="./source.html?path=docs%2FWindows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md">构建文档</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA">GitHub</a><a href="https://yuweiyang9611.github.io/">全部项目</a></nav>
     </header>
 
     <main class="page" id="main">
@@ -173,7 +175,7 @@ cmake --build build --config Release --target _lightgbm --parallel</code><button
           <article class="recipe" id="build-wheel" aria-labelledby="build-wheel-title">
             <p class="band" data-hue="purple">Windows · Git Bash 加 Python</p>
             <h3 id="build-wheel-title">打包成 wheel</h3>
-            <p>把上一步的 DLL 装进 Python 包。<code>build-python.sh</code> 会在仓库根目录和 <code>Release\</code> 下找 <code>lib_lightgbm.dll</code>，在 <code>dist\</code> 生成带 <code>win_amd64</code> 平台标签的 wheel，再安装它。</p>
+            <p>把上一步的 DLL 装进 Python 包。<a href="./source.html?path=build-python.sh"><code>build-python.sh</code></a> 会在仓库根目录和 <code>Release\</code> 下找 <code>lib_lightgbm.dll</code>，在 <code>dist\</code> 生成带 <code>win_amd64</code> 平台标签的 wheel，再安装它。</p>
             <dl class="fields">
               <dt>需要</dt>
               <dd>Git Bash、Python 3.10 或更新版本</dd>
@@ -254,17 +256,18 @@ tests/win_native_cuda_tests/run_windows_cuda_tests.ps1</code><button class="copy
               <li><span class="row-key">训练</span><p>真实 CUDA 训练 8 棵树：预测全是有限值，MSE 低于常数预测的一半。</p></li>
               <li><span class="row-key">PTX JIT</span><p>设置 <code>CUDA_FORCE_PTX_JIT=1</code> 并禁用缓存，单独走一遍 PTX 路径。</p></li>
               <li><span class="row-key">边界</span><p><code>USE_NCCL=OFF</code> 的构建接受 <code>num_gpu=1</code>，拒绝 <code>num_gpu=2</code>。</p></li>
-              <li><span class="row-key">回归</span><p>CUDA 正确性回归：缺失值路由、直方图同步、<code>max_depth</code>、量化与类别分裂、bagging 和 GOSS 状态。<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/tests/win_native_cuda_tests/README.md#kernel-correctness-regressions">测试说明</a></p></li>
+              <li><span class="row-key">回归</span><p>CUDA 正确性回归：缺失值路由、直方图同步、<code>max_depth</code>、量化与类别分裂、bagging 和 GOSS 状态。<a href="./source.html?path=tests%2Fwin_native_cuda_tests%2FREADME.md#kernel-correctness-regressions">测试说明</a></p></li>
             </ul>
             <ul class="notes">
               <li>CMake 只装在 CLion 里时，加 <code>-CMakeExecutable</code> 传入 <code>cmake.exe</code> 的完整路径。</li>
+              <li>脚本本身是 <a href="./source.html?path=tests%2Fwin_native_cuda_tests%2Frun_windows_cuda_tests.ps1"><code>run_windows_cuda_tests.ps1</code></a>，它调用的测试都在<a href="./source.html?dir=tests%2Fwin_native_cuda_tests">同一个目录</a>里，可以直接在站内读。</li>
             </ul>
           </article>
 
           <article class="recipe" id="verify-contract" aria-labelledby="verify-contract-title">
             <p class="band" data-hue="cyan">任何机器 · 不需要 GPU</p>
             <h3 id="verify-contract-title">只查源码契约，不需要 GPU</h3>
-            <p>检查 NCCL 是否完整条件化、MSVC 参数、fmt 补丁、Windows 类型修复、device-link 配置和 wheel 元数据。</p>
+            <p>检查 NCCL 是否完整条件化、MSVC 参数、fmt 补丁、Windows 类型修复、device-link 配置和 wheel 元数据。每一条检查的写法见 <a href="./source.html?path=tests%2Fwin_native_cuda_tests%2Ftest_source_contract.py"><code>test_source_contract.py</code></a>。</p>
             <div class="cmds">
               <p class="cmd-label">PowerShell，在仓库根目录</p>
               <div class="cmd"><code>.\.venv\Scripts\python.exe -m pytest -ra tests/win_native_cuda_tests/test_source_contract.py</code><button class="copy" type="button">复制</button></div>
@@ -286,6 +289,7 @@ tests/win_native_cuda_tests/run_windows_cuda_tests.ps1</code><button class="copy
             <ul class="notes">
               <li>当前产物应列出 <code>cuda_link.sm_89.ptx</code> 和各个 CUDA 编译单元的 <code>.sm_89.ptx</code>，共 16 项。</li>
               <li>不要只用 <code>cuobjdump --list-ptx</code>：它只看最终的 fatbin，在这种构建里会误报 <code>No PTX file found</code>。</li>
+              <li>测试做了什么，见 <a href="./source.html?path=tests%2Fwin_native_cuda_tests%2Ftest_cuda_runtime.py"><code>test_cuda_runtime.py</code></a>。</li>
             </ul>
           </article>
 
@@ -516,39 +520,45 @@ model = lgb.<span class="tok-call">train</span>(
               <span class="row-key">依赖边界</span>
               <h3>NCCL 从 CUDA 必选项改成多卡可选项</h3>
               <p>新增 <code>USE_NCCL</code>，按条件查找库、包含头文件、加入源码和链接。单 GPU 只做本卡计算，不再被多卡通信库卡住。</p>
-              <a class="row-source" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/CMakeLists.txt"><code>CMakeLists.txt</code></a>
+              <a class="row-source" href="./source.html?path=CMakeLists.txt" data-source-tab="CMakeLists.txt"><code>CMakeLists.txt</code></a>
             </li>
             <li>
               <span class="row-key">编译工具链</span>
               <h3>适配 MSVC、NVCC 和自带的 fmt</h3>
               <p>MSVC 路径用 <code>/utf-8</code>、<code>/bigobj</code> 和 <code>NOMINMAX</code>，不再传 Unix 专用的 <code>-fPIC</code>、<code>-Wall</code>。fmt 在构建目录里打 UTF-32 补丁，不改第三方源码，版本不符时停止配置。</p>
-              <a class="row-source" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/cmake/WindowsCudaFmtPatch.cmake"><code>WindowsCudaFmtPatch.cmake</code></a>
+              <a class="row-source" href="./source.html?path=cmake%2FWindowsCudaFmtPatch.cmake" data-source-tab="cmake/WindowsCudaFmtPatch.cmake"><code>WindowsCudaFmtPatch.cmake</code></a>
             </li>
             <li>
               <span class="row-key">二进制链接</span>
               <h3>让 Visual Studio 真正执行 CUDA device-link</h3>
               <p>打开 separable compilation 和 device-symbol resolution，给最终目标加一个空的 <code>cuda_link.cu</code> 触发链接步骤。CUDA Runtime 选 Shared，与 MSVC 的 <code>/MD</code> 对齐。</p>
-              <a class="row-source" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/src/cuda/cuda_link.cu"><code>cuda_link.cu</code></a>
+              <a class="row-source" href="./source.html?path=src%2Fcuda%2Fcuda_link.cu" data-source-tab="src/cuda/cuda_link.cu"><code>cuda_link.cu</code></a>
             </li>
             <li>
               <span class="row-key">源码兼容</span>
               <h3>清理 Windows 64 位类型与宏冲突</h3>
               <p>CUDA 可见的数值常量改为 <code>constexpr</code>，用 <code>size_t{1}</code> 保证模板参数同型，kernel 模板参数改名为 <code>USE_NCCL_REDUCTION</code>，避开构建宏。</p>
-              <a class="row-source" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/tests/win_native_cuda_tests/test_source_contract.py"><code>test_source_contract.py</code></a>
+              <a class="row-source" href="./source.html?path=tests%2Fwin_native_cuda_tests%2Ftest_source_contract.py" data-source-tab="tests/win_native_cuda_tests/test_source_contract.py"><code>test_source_contract.py</code></a>
             </li>
             <li>
               <span class="row-key">Python 打包</span>
               <h3>把预编译 DLL 封装成 Windows wheel</h3>
               <p>按 <code>sysconfig.get_platform()</code> 重标平台，把 <code>Root-Is-Purelib</code> 设为 <code>false</code> 后重新打包；支持 PEP 427 build tag。</p>
-              <a class="row-source" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/build-python.sh"><code>build-python.sh</code></a>
+              <a class="row-source" href="./source.html?path=build-python.sh" data-source-tab="build-python.sh"><code>build-python.sh</code></a>
             </li>
             <li>
               <span class="row-key">离线交付</span>
               <h3>wheelhouse 和零安装便携包</h3>
               <p>离线包先校验 SHA-256 再安装。便携包组合 CPython embeddable、app-local 运行库、隔离启动器和冒烟测试，不改系统 <code>PATH</code>、注册表或用户的 Python。</p>
-              <a class="row-source" href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/tree/main/packaging/windows_cuda_portable"><code>windows_cuda_portable</code></a>
+              <a class="row-source" href="./source.html?dir=packaging%2Fwindows_cuda_portable" data-source-tab="packaging/windows_cuda_portable/build_portable_bundle.ps1"><code>windows_cuda_portable</code></a>
             </li>
           </ul>
+          <!-- The six files read here, at the page's own revision; a row's file name switches the tab. Without script the tabs still show and the files open on GitHub. -->
+          <p class="rows-head" id="changes-source-lead">这六个文件可以在这里读，和仓库同一版本：点一行里的文件名切换。要看历史和 blame，用面板里的 GitHub 链接。</p>
+          <div class="nb-code" id="changes-source" data-source-base="./assets/source/" data-blob-base="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/">
+            <div class="nb-code-tabs" role="tablist" aria-label="文件"><span class="nb-code-tab" role="tab" aria-selected="true" data-path="CMakeLists.txt">CMakeLists.txt</span><span class="nb-code-tab" role="tab" aria-selected="false" data-path="cmake/WindowsCudaFmtPatch.cmake">WindowsCudaFmtPatch.cmake</span><span class="nb-code-tab" role="tab" aria-selected="false" data-path="src/cuda/cuda_link.cu">cuda_link.cu</span><span class="nb-code-tab" role="tab" aria-selected="false" data-path="tests/win_native_cuda_tests/test_source_contract.py">test_source_contract.py</span><span class="nb-code-tab" role="tab" aria-selected="false" data-path="build-python.sh">build-python.sh</span><span class="nb-code-tab" role="tab" aria-selected="false" data-path="packaging/windows_cuda_portable/build_portable_bundle.ps1">build_portable_bundle.ps1</span></div>
+            <pre class="nb-code-view"><code><noscript>看代码需要 JavaScript。源文件在 GitHub：<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/CMakeLists.txt">CMakeLists.txt</a>、<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/cmake/WindowsCudaFmtPatch.cmake">WindowsCudaFmtPatch.cmake</a>、<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/src/cuda/cuda_link.cu">cuda_link.cu</a>、<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/tests/win_native_cuda_tests/test_source_contract.py">test_source_contract.py</a>、<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/build-python.sh">build-python.sh</a>、<a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/blob/main/packaging/windows_cuda_portable/build_portable_bundle.ps1">build_portable_bundle.ps1</a>。</noscript></code></pre>
+          </div>
         </section>
       </div>
       </div>
@@ -556,7 +566,7 @@ model = lgb.<span class="tok-call">train</span>(
 
     <footer class="site-footer">
       <p>MIT License · 非官方构建，不是 LightGBM 官方发布 · 页面内容依据仓库当前的实现与测试记录</p>
-      <p class="footer-links"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA">源码仓库</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases">Releases</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/tree/main/tests/win_native_cuda_tests">测试说明</a></p>
+      <p class="footer-links"><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA">源码仓库</a><a href="https://github.com/yuweiyang9611/LightGBM-NativeCUDA/releases">Releases</a><a href="./source.html?dir=tests%2Fwin_native_cuda_tests">测试说明</a></p>
     </footer>
   </body>
 </html>
