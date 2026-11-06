@@ -105,3 +105,44 @@ window.addEventListener(
     },
 );
 markCurrent();
+
+// Source read in place: a changes row opens its file in the one panel under the table instead of leaving the
+// page, and the panel links to the source page, where the file's directory and siblings are.
+const changesSource = document.getElementById("changes-source");
+if (changesSource && window.SourcePanel) {
+    const files = [
+        ...changesSource.querySelectorAll("[data-path]"),
+    ].map((tab) => ({
+        path: tab.dataset.path,
+        label: tab.textContent,
+    }));
+    const pageLink = (path) => `./source.html?path=${encodeURIComponent(path)}`;
+    const sitePage = document.createElement("a");
+    sitePage.className = "nb-code-page";
+    sitePage.textContent = "在源码页打开";
+    sitePage.href = pageLink(files[0]?.path ?? "");
+    const panel = window.SourcePanel.create({
+        root: changesSource,
+        base: changesSource.dataset.sourceBase,
+        files,
+        active: files[0]?.path,
+        blobBase: changesSource.dataset.blobBase,
+        onSelect: (path) => {
+            sitePage.href = pageLink(path);
+        },
+    });
+    panel.actions.insertBefore(sitePage, panel.actions.querySelector(".nb-code-link"));
+    for (const row of document.querySelectorAll("a.row-source[data-source-tab]")) {
+        row.addEventListener("click", (event) => {
+            const path = row.dataset.sourceTab;
+            if (!files.some((file) => file.path === path)) return;
+            event.preventDefault();
+            panel.select(path);
+            sitePage.href = pageLink(path);
+            changesSource.scrollIntoView({
+                block: "start",
+            });
+            changesSource.querySelector(`[data-path="${path}"]`)?.focus();
+        });
+    }
+}

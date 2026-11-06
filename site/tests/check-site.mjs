@@ -1,5 +1,6 @@
 // Checks the GitHub Pages site before it is deployed: every link resolves, the kit copies are the
-// published v1 files, and the page loads cleanly in both colour schemes on a desktop and a phone.
+// published v1 files, the source bundle is complete and read in place, and the pages load cleanly in both
+// colour schemes on a desktop and a phone.
 //
 //   npm ci --prefix site/tests
 //   node site/tests/check-site.mjs
@@ -7,6 +8,7 @@
 // It uses an installed Chrome or Edge, or CHROME_PATH, and falls back to Playwright's own Chromium.
 // SITE_CHECK_PORT fixes the port of its local server; by default the system picks a free one.
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
@@ -28,16 +30,64 @@ const types = {
   ".css": "text/css",
   ".html": "text/html",
   ".js": "text/javascript",
+  ".json": "application/json",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".txt": "text/plain; charset=utf-8",
 };
 
 // The kit is copied from yuweiyang9611.github.io/kit/v1 unedited, and a published kit version never changes.
+// notebook.css moved to the copy that adds the code panel (.nb-code) on 2026-11-06.
 const kit = {
   "assets/lib/favicon.svg": "3ea07acd66b71bcef6462252c4e437ee6622f57898089bbb891410e57b20dc0e",
-  "assets/lib/notebook.css": "77b6f7006dedd30fac7baa290419b4784d11a349bb0be92605311eb3a42c4857",
+  "assets/lib/notebook.css": "9953db9200fc2a6306d53350d61cabddf03cdb7991f12abeed0aac206a82923b",
   "assets/lib/theme.js": "2f26afc56d0152d02f363af644ac51b552a890e02d3e81542795aba6b8d5d5e0",
 };
+
+// Source read in place: the bundle is rebuilt here, every file it lists exists, every in-site source link
+// points at a bundled file or directory, and no page sends the reader to GitHub for a bundled file.
+execFileSync(
+  process.execPath,
+  [
+    join(root, "scripts", "bundle-source.mjs"),
+  ],
+  {
+    stdio: "inherit",
+  },
+);
+const bundle = JSON.parse(await readFile(join(root, "assets", "source", "index.json"), "utf8"));
+assert.equal(bundle.version, 1);
+assert.match(bundle.revision, /^[0-9a-f]{40}$/u);
+assert.ok(bundle.blobBase.startsWith("https://github.com/") && bundle.blobBase.endsWith("/blob/main/"));
+const bundled = new Set(bundle.files.map((file) => file.path));
+assert.ok(bundled.size >= 50, `the bundle lists only ${bundled.size} files`);
+const bundledUnder = (dir) => bundle.files.some((file) => file.path.startsWith(`${dir.replace(/\/$/u, "")}/`));
+for (const file of bundle.files) {
+  assert.ok(file.lines > 0 && file.bytes > 0, `${file.path} is empty`);
+  assert.ok((await stat(join(root, "assets", "source", `${file.path}.txt`))).isFile(), `${file.path} is not bundled`);
+}
+for (const name of [
+  "index.html",
+  "source.html",
+]) {
+  // A noscript may name GitHub: it is the only way to the file without script.
+  const html = (await readFile(join(root, name), "utf8")).replaceAll(/<noscript>[\s\S]*?<\/noscript>/gu, "");
+  for (const [, path] of html.matchAll(/href="\.\/source\.html\?path=([^"#&]+)/gu)) {
+    assert.ok(bundled.has(decodeURIComponent(path)), `${name} links ${path}, which is not bundled`);
+  }
+  for (const [, dir] of html.matchAll(/href="\.\/source\.html\?dir=([^"#&]+)/gu)) {
+    assert.ok(bundledUnder(decodeURIComponent(dir)), `${name} lists ${dir}, which has no bundled file`);
+  }
+  for (const [, path] of html.matchAll(/data-path="([^"]+)"/gu)) {
+    assert.ok(bundled.has(path), `${name} shows ${path} in the panel, which is not bundled`);
+  }
+  for (const [, path] of html.matchAll(/href="https:\/\/github\.com\/[^"]+\/blob\/[^/"]+\/([^"#?]+)/gu)) {
+    assert.ok(!bundled.has(decodeURIComponent(path)), `${name} sends the reader to GitHub for the bundled ${path}`);
+  }
+  for (const [, dir] of html.matchAll(/href="https:\/\/github\.com\/[^"]+\/tree\/[^/"]+\/([^"#?]+)/gu)) {
+    assert.ok(!bundledUnder(decodeURIComponent(dir)), `${name} sends the reader to GitHub for the bundled ${dir}`);
+  }
+}
 
 // Old section anchors that links elsewhere may still use.
 const anchors = [
@@ -89,7 +139,7 @@ for (const [file, digest] of Object.entries(kit)) {
   assert.equal(actual, digest, `${file} must be the unedited kit v1 copy`);
 }
 
-async function open(browser, { viewport, colorScheme, init }) {
+async function open(browser, { viewport, colorScheme, init, path = "" }) {
   const context = await browser.newContext({
     viewport,
     colorScheme,
@@ -106,7 +156,7 @@ async function open(browser, { viewport, colorScheme, init }) {
   page.on("response", (response) => {
     if (response.status() >= 400) errors.push(`${response.status()}: ${response.url()}`);
   });
-  await page.goto(pageUrl, {
+  await page.goto(pageUrl + path, {
     waitUntil: "load",
   });
   return {
@@ -184,13 +234,17 @@ try {
     const image = await page.locator('meta[property="og:image"]').getAttribute("content");
     assert.equal((await fetch(new URL(new URL(image).pathname, origin))).status, 200, "og:image must ship");
 
-    // Only the five kit colours and one family at two weights reach the reading text.
+    // Only the five kit colours and one family at two weights reach the reading text. The code panel's tab
+    // strip is file names, set in mono by the kit like the code itself.
     const type = await page.evaluate(() => {
       const styles = [
         ...document.querySelectorAll("body *"),
       ]
         .filter(
-          (element) => element.offsetParent && element.textContent.trim() && !element.closest("code, pre, kbd, samp"),
+          (element) =>
+            element.offsetParent &&
+            element.textContent.trim() &&
+            !element.closest("code, pre, kbd, samp, .nb-code-tabs"),
         )
         .map((element) => getComputedStyle(element));
       return {
@@ -243,6 +297,104 @@ try {
     await context.close();
   }
 
+  // Source read in place: a changes row opens its file in the panel on the page, numbered and coloured, and
+  // the panel's only GitHub link is the small one in its actions row.
+  {
+    const { context, page, errors } = await open(browser, {
+      viewport: {
+        width: 1440,
+        height: 900,
+      },
+      colorScheme: "light",
+    });
+    const panel = page.locator("#changes-source");
+    assert.equal(await panel.locator(".nb-code-tab").count(), 6, "the panel has a tab per changed file");
+    await panel.locator(".nb-code-line").first().waitFor();
+    assert.equal(await panel.locator(".nb-code-line").first().getAttribute("data-line"), "1");
+    assert.ok((await panel.locator(".nb-code-line").count()) >= 900, "CMakeLists.txt is shown whole");
+    assert.equal(await panel.locator(".nb-code-line").first().locator(":scope > *").count(), 1, "one span per line");
+    assert.ok((await panel.locator(".tok-call").count()) > 0, "the code is coloured");
+    assert.equal(
+      await panel.locator(".nb-code-note").textContent(),
+      `${bundle.files.find((file) => file.path === "CMakeLists.txt").lines} 行`,
+    );
+    assert.match(await panel.locator(".nb-code-link").getAttribute("href"), /\/blob\/main\/CMakeLists\.txt$/u);
+    await page.locator('a.row-source[data-source-tab="src/cuda/cuda_link.cu"]').click();
+    await page.waitForFunction(
+      () =>
+        document.querySelector('#changes-source .nb-code-tab[aria-selected="true"]')?.textContent === "cuda_link.cu" &&
+        document.querySelectorAll("#changes-source .nb-code-line").length > 5,
+    );
+    assert.equal(page.url(), pageUrl, "the row opens the panel instead of leaving the page");
+    assert.equal(
+      await panel.locator(".nb-code-tab[aria-selected='true']").evaluate((tab) => tab === document.activeElement),
+      true,
+    );
+    assert.match(
+      await panel.locator(".nb-code-page").getAttribute("href"),
+      /source\.html\?path=src%2Fcuda%2Fcuda_link\.cu$/u,
+    );
+    assert.match(await panel.locator(".nb-code-link").getAttribute("href"), /\/blob\/main\/src\/cuda\/cuda_link\.cu$/u);
+    assert.ok((await panel.locator(".tok-comment").count()) > 0, "the CUDA file is coloured");
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
+  // The source page: a file with a line range or a heading anchor, a directory, and the top of the bundle.
+  {
+    const { context, page, errors } = await open(browser, {
+      viewport: {
+        width: 1440,
+        height: 900,
+      },
+      colorScheme: "light",
+      path: "source.html?path=tests%2Fwin_native_cuda_tests%2Ftest_source_contract.py#L5-L9",
+    });
+    const panel = page.locator("#source-panel");
+    await panel.locator(".nb-code-line").first().waitFor();
+    assert.equal(await page.locator("#source-title").textContent(), "test_source_contract.py");
+    assert.equal(await panel.locator(".nb-code-line[data-marked]").count(), 5, "the line range is marked");
+    assert.ok((await panel.locator(".tok-keyword").count()) > 0, "the Python file is coloured");
+    assert.ok((await page.locator("#source-sibling-list li").count()) >= 10, "the siblings are listed");
+    assert.match(
+      await panel.locator(".nb-code-link").getAttribute("href"),
+      /\/blob\/main\/tests\/win_native_cuda_tests\/test_source_contract\.py$/u,
+    );
+    assert.equal(await page.locator("#source-crumbs a").count(), 3);
+
+    await page.goto(
+      `${pageUrl}source.html?path=tests%2Fwin_native_cuda_tests%2FREADME.md#kernel-correctness-regressions`,
+    );
+    await panel.locator(".nb-code-line[data-marked]").waitFor();
+    assert.match(
+      await panel.locator(".nb-code-line[data-marked]").textContent(),
+      /^## Kernel correctness regressions/u,
+    );
+
+    await page.goto(
+      `${pageUrl}source.html?path=docs%2FWindows%E5%8E%9F%E7%94%9F%E5%8D%95%E6%98%BE%E5%8D%A1LightGBM_CUDA%E7%89%88%E6%9C%AC%E6%9E%84%E5%BB%BA.md`,
+    );
+    await panel.locator(".nb-code-line").first().waitFor();
+    assert.ok((await panel.locator(".nb-code-line").count()) >= 50, "the build document is shown whole");
+
+    await page.goto(`${pageUrl}source.html?dir=tests%2Fwin_native_cuda_tests`);
+    await page.locator(".source-row").first().waitFor();
+    assert.ok((await page.locator(".source-row").count()) >= 30, "the test directory lists its files");
+    assert.match(await page.locator(".source-row span").first().textContent(), /^\d+ 行 · [\d.]+ KB$/u);
+
+    await page.goto(`${pageUrl}source.html`);
+    await page.locator(".source-row").first().waitFor();
+    const top = await page.locator(".source-row a").allTextContents();
+    assert.ok(top.includes("cmake/") && top.includes("CMakeLists.txt"), `top level: ${top.join(" ")}`);
+    assert.match(await page.locator(".source-row span").first().textContent(), /^\d+ 个文件 · \d+ 行$/u);
+
+    await page.goto(`${pageUrl}source.html?path=nowhere.txt`);
+    await page.locator(".source-row").first().waitFor();
+    assert.equal(await page.locator("#source-title").textContent(), "没有这个文件");
+    assert.deepEqual(errors, []);
+    await context.close();
+  }
+
   // Both schemes on a desktop and a phone: no errors, no sideways scroll, no serious accessibility issues.
   for (const colorScheme of [
     "light",
@@ -264,6 +416,8 @@ try {
         colorScheme,
       });
       assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), colorScheme, label);
+      // The widest thing on the page is the code in the panel, so it has to be there before measuring.
+      await page.locator("#changes-source .nb-code-line").first().waitFor();
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
@@ -278,6 +432,13 @@ try {
         assert.equal(await menu.getAttribute("aria-expanded"), "true");
         assert.equal(await page.locator("#site-nav").isVisible(), true, "the phone menu opens");
       }
+      await page.goto(`${pageUrl}source.html?path=CMakeLists.txt`);
+      await page.locator("#source-panel .nb-code-line").first().waitFor();
+      const sourceOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      assert.equal(sourceOverflow, 0, `${label} source page scrolls sideways by ${sourceOverflow}px`);
+      await assertAccessible(page, `${label} source page`);
       assert.deepEqual(errors, [], label);
       await context.close();
     }

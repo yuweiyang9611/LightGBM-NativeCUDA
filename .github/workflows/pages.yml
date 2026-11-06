@@ -7,6 +7,14 @@ on:
     paths:
       - '.github/workflows/pages.yml'
       - 'site/**'
+      # The page bundles these for reading in place, so a change to them is a change to the page.
+      - 'CMakeLists.txt'
+      - 'build-python.sh'
+      - 'cmake/**'
+      - 'src/cuda/cuda_link.cu'
+      - 'tests/win_native_cuda_tests/**'
+      - 'packaging/windows_cuda_portable/**'
+      - 'docs/Windows*.md'
   workflow_dispatch:
 
 concurrency:
@@ -29,14 +37,21 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
+      # The repository files the page points at, copied into site/assets/source at this revision.
+      - name: Bundle source for reading in place
+        shell: bash
+        run: node site/scripts/bundle-source.mjs
       - name: Validate static site
         shell: bash
         run: |
           test -f site/index.html
+          test -f site/source.html
           test -f site/assets/site.css
           test -f site/assets/site.js
           test -f site/assets/og.png
-          if grep -Rni --exclude='og.png' 'fork' site; then
+          test -f site/assets/source/index.json
+          # assets/source holds copies of repository files, which may use the word; the page itself may not.
+          if grep -Rni --exclude='og.png' --exclude-dir='source' 'fork' site; then
             echo 'The project page must describe this implementation directly.' >&2
             exit 1
           fi
@@ -49,13 +64,13 @@ jobs:
             node site/tests/node_modules/playwright-core/cli.js install chromium
           fi
           node site/tests/check-site.mjs
-      # Publish the site without its tests.
+      # Publish the site without its tests and build scripts.
       - name: Stage site
         shell: bash
         run: |
           mkdir _site
           cp -R site/. _site/
-          rm -rf _site/tests
+          rm -rf _site/tests _site/scripts
       - name: Configure GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
       - name: Upload GitHub Pages artifact

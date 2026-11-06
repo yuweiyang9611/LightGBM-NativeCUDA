@@ -484,3 +484,6 @@ dmypy.json
 
 # files created by release tasks
 /release-artifacts
+
+# The project page bundles repository files for reading in place; site/scripts/bundle-source.mjs rebuilds it.
+site/assets/source/

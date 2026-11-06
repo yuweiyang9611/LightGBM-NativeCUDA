@@ -583,3 +583,98 @@
     display: block;
   }
 }
+
+/* Source read in place: the changed files in the kit's code panel under the changes rows, and the source page
+   with its breadcrumbs, ruled directory rows and sibling files. The kit colours the panel; this only places it. */
+#changes-source {
+  margin-top: 0.75rem;
+  scroll-margin-top: calc(var(--nb-head-height) + 1rem);
+}
+
+/* The panel's code sits on the kit's code paper, not on the inline-code wash. */
+.page .nb-code code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+}
+
+.source-crumbs {
+  color: var(--nb-ink-soft);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.source-crumbs span {
+  color: var(--nb-ink);
+}
+
+.source-title {
+  margin-top: 0.25rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+}
+
+.source-note {
+  max-width: var(--nb-measure);
+  margin: 0.25rem 0 1.25rem;
+  color: var(--nb-ink-soft);
+}
+
+.source-rows {
+  border-top: 1px solid var(--nb-rule-bold);
+  list-style: none;
+}
+
+.source-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.75rem;
+  padding: 0.375rem 0 0.375rem 1.25rem;
+  border-bottom: 1px solid var(--nb-rule);
+}
+
+.source-row a {
+  min-width: 0;
+  font-family: var(--nb-mono);
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.source-row span {
+  flex: none;
+  color: var(--nb-ink-soft);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#source-panel {
+  --nb-code-height: calc(100vh - 16rem);
+  margin-top: 0.5rem;
+}
+
+.source-siblings {
+  margin-top: 1.5rem;
+}
+
+.source-siblings-title {
+  margin-bottom: 0.375rem;
+  font-size: 1rem;
+}
+
+.source-siblings ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  list-style: none;
+  font-family: var(--nb-mono);
+  font-size: 0.875rem;
+}
+
+.source-siblings a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  overflow-wrap: anywhere;
+}
